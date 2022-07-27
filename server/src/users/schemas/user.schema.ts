@@ -1,0 +1,20 @@
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
+
+// Typing that includes the "_id" & "__v"
+// along with the schema defned below
+export type UserDocument = User & Document;
+
+@Schema()
+export class User {
+  @Prop({ required: true })
+  name: string;
+
+  @Prop({ unique: true, required: true })
+  email: string;
+
+  @Prop({ required: true })
+  password: string;
+}
+
+export const UserSchema = SchemaFactory.createForClass(User);
