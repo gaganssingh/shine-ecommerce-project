@@ -48,7 +48,6 @@ export class AuthService {
     const { email, password: plainPassword } = loginUserDto;
 
     const user = await this.usersService.findByEmail(email);
-    console.log('AuthService:', user);
     if (!user) {
       throw new NotFoundException(`User with email "${email} not found"`);
     }

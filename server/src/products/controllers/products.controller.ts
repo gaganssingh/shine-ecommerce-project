@@ -6,7 +6,9 @@ import {
   Param,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
+import { JwtGuard } from 'src/auth/guards/jwt.guard';
 import { CreateProductDto } from '../dtos/create-product.dto';
 import { UpdateProductDto } from '../dtos/update-product.dto';
 import { ProductDocument } from '../schemas/product.schema';
@@ -24,6 +26,7 @@ export class ProductsController {
   }
 
   @Get()
+  @UseGuards(JwtGuard)
   findAllProducts(): Promise<ProductDocument[]> {
     return this.productsService.findAll();
   }
@@ -34,6 +37,7 @@ export class ProductsController {
   }
 
   @Patch(':id')
+  @UseGuards(JwtGuard)
   async update(
     @Param('id') id: string,
     @Body() updateProductDto: UpdateProductDto,
