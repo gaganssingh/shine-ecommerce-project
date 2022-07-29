@@ -1,17 +1,90 @@
 import { FormEvent, useEffect, useRef } from "react";
 import { Grid, TextField, InputLabel, Button } from "@mui/material";
 import { FormHeader } from "./FormHeader";
+import {
+  validateNameLength,
+  validatePasswordLength,
+} from "../../../shared/utils/validation/length-validation";
+import { useInput } from "../../../hooks/input";
+import { validateEmail } from "../../../shared/utils/validation/email-validation";
+import { validateFormData } from "../../../shared/utils/validation/validate-form-data";
+import { validateFormErrors } from "../../../shared/utils/validation/validate-form-errors";
+import { SignupUserType } from "../models/signup-user.type";
 
 export const SignupForm: React.FC = () => {
   const inputToFocusRef = useRef<HTMLInputElement>(null);
+
+  // Form State
+  const {
+    text: name,
+    error: nameError,
+    inputChangeHandler: nameChangeHandler,
+    inputBlurHandler: nameBlurHandler,
+    inputClearHandler: nameClearHandler,
+  } = useInput(validateNameLength);
+
+  const {
+    text: email,
+    error: emailError,
+    inputChangeHandler: emailChangeHandler,
+    inputBlurHandler: emailBlurHandler,
+    inputClearHandler: emailClearHandler,
+  } = useInput(validateEmail);
+
+  const {
+    text: password,
+    error: passwordError,
+    inputChangeHandler: passwordChangeHandler,
+    inputBlurHandler: passwordBlurHandler,
+    inputClearHandler: passwordClearHandler,
+  } = useInput(validatePasswordLength);
+
+  const {
+    text: confirmPassword,
+    error: confirmPasswordError,
+    inputChangeHandler: confirmPasswordChangeHandler,
+    inputBlurHandler: confirmPasswordBlurHandler,
+    inputClearHandler: confirmPasswordClearHandler,
+  } = useInput();
 
   useEffect(() => {
     inputToFocusRef.current?.focus();
   }, []);
 
+  const clearForm = () => {
+    nameClearHandler();
+    emailClearHandler();
+    passwordClearHandler();
+    confirmPasswordClearHandler();
+  };
+
   const handleFormSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Signing up....");
+
+    if (!validateFormData({ name, email, password, confirmPassword })) {
+      return;
+    }
+
+    if (
+      !validateFormErrors({
+        nameError,
+        emailError,
+        passwordError,
+        confirmPasswordError,
+      })
+    ) {
+      return;
+    }
+
+    const user: SignupUserType = {
+      name,
+      email,
+      password,
+    };
+
+    console.log("Signing up with user info:", user);
+
+    clearForm();
   };
 
   return (
@@ -33,6 +106,11 @@ export const SignupForm: React.FC = () => {
           id="name"
           variant="outlined"
           size="small"
+          value={name}
+          onChange={nameChangeHandler}
+          onBlur={nameBlurHandler}
+          error={nameError}
+          helperText={nameError && "Name must be provided"}
         />
 
         {/* EMAIL INPUT */}
@@ -48,6 +126,11 @@ export const SignupForm: React.FC = () => {
           id="email"
           variant="outlined"
           size="small"
+          value={email}
+          onChange={emailChangeHandler}
+          onBlur={emailBlurHandler}
+          error={emailError}
+          helperText={emailError && "Email must be provided"}
         />
 
         {/* PASSWORD INPUT */}
@@ -64,6 +147,11 @@ export const SignupForm: React.FC = () => {
           variant="outlined"
           size="small"
           placeholder="Min 8 chars; Contains atleast 1 lower, 1 upper, 1 number, & 1 special character"
+          value={password}
+          onChange={passwordChangeHandler}
+          onBlur={passwordBlurHandler}
+          error={passwordError}
+          helperText={passwordError && "Password must be provided"}
         />
 
         {/* CONFIRM PASSWORD INPUT */}
@@ -79,7 +167,16 @@ export const SignupForm: React.FC = () => {
           id="confirmPassword"
           variant="outlined"
           size="small"
-          placeholder="Must match the password"
+          placeholder="Match the password"
+          value={confirmPassword}
+          onChange={confirmPasswordChangeHandler}
+          onBlur={confirmPasswordBlurHandler}
+          error={confirmPassword.length > 0 && confirmPassword !== password}
+          helperText={
+            confirmPassword.length > 0 &&
+            confirmPassword !== password &&
+            "Must confirm the password"
+          }
         />
 
         {/* FORM SUBMIT BUTTON */}

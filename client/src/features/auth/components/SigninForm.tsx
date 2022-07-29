@@ -1,17 +1,65 @@
 import { FormEvent, useEffect, useRef } from "react";
 import { Grid, InputLabel, TextField, Button } from "@mui/material";
 import { FormHeader } from "./FormHeader";
+import { useInput } from "../../../hooks/input";
+import { validateEmail } from "../../../shared/utils/validation/email-validation";
+import { validatePasswordLength } from "../../../shared/utils/validation/length-validation";
+import { validateFormData } from "../../../shared/utils/validation/validate-form-data";
+import { validateFormErrors } from "../../../shared/utils/validation/validate-form-errors";
+import { SigninUserType } from "../models/signin-user-type";
 
 export const SigninForm = () => {
   const inputToFocusRef = useRef<HTMLInputElement | null>(null);
+
+  const {
+    text: email,
+    error: emailError,
+    inputChangeHandler: emailChangeHandler,
+    inputBlurHandler: emailBlurHandler,
+    inputClearHandler: emailClearHandler,
+  } = useInput(validateEmail);
+
+  const {
+    text: password,
+    error: passwordError,
+    inputChangeHandler: passwordChangeHandler,
+    inputBlurHandler: passwordBlurHandler,
+    inputClearHandler: passwordClearHandler,
+  } = useInput(validatePasswordLength);
 
   useEffect(() => {
     inputToFocusRef.current?.focus();
   }, []);
 
+  const clearForm = () => {
+    emailClearHandler();
+    passwordClearHandler();
+  };
+
   const handleFormSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Signing in....");
+
+    if (!validateFormData({ email, password })) {
+      return;
+    }
+
+    if (
+      !validateFormErrors({
+        emailError,
+        passwordError,
+      })
+    ) {
+      return;
+    }
+
+    const user: SigninUserType = {
+      email,
+      password,
+    };
+
+    console.log("Signing in with user info:", user);
+
+    clearForm();
   };
 
   return (
@@ -33,6 +81,11 @@ export const SigninForm = () => {
           id="email"
           variant="outlined"
           size="small"
+          value={email}
+          onChange={emailChangeHandler}
+          onBlur={emailBlurHandler}
+          error={emailError}
+          helperText={emailError && "Email must be provided"}
         />
 
         {/* PASSWORD INPUT */}
@@ -48,7 +101,11 @@ export const SigninForm = () => {
           id="password"
           variant="outlined"
           size="small"
-          placeholder="Min 8 chars; Contains atleast 1 lower, 1 upper, 1 number, & 1 special character"
+          value={password}
+          onChange={passwordChangeHandler}
+          onBlur={passwordBlurHandler}
+          error={passwordError}
+          helperText={passwordError && "Password must be provided"}
         />
 
         {/* FORM SUBMIT BUTTON */}

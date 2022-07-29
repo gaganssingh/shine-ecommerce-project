@@ -3,7 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import { HomePage } from "./pages/home.page";
 import { SigninPage } from "./pages/signin.page";
 import { SignupPage } from "./pages/signup.page";
-import { theme } from "./shared/utils/theme";
+import { theme } from "./shared/theme";
 
 export const App = () => {
   return (
