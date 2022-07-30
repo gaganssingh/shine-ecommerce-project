@@ -5,6 +5,7 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { UsersService } from 'src/users/services/users.service';
 import { CreateUserDto } from '../dtos/create-user.dto';
@@ -70,7 +71,7 @@ export class AuthService {
     const { email, password } = createUserDto;
     const existingUser = await this.usersService.findByEmail(email);
     if (existingUser) {
-      throw new ConflictException(`Email address in use`);
+      throw new ConflictException(`Email address already in use`);
     }
 
     const hashedPassword = await this.hashPassword(password);
@@ -99,5 +100,14 @@ export class AuthService {
 
     const jwt = await this.jwtService.signAsync({ user });
     return { token: jwt };
+  }
+
+  async verifyJwt(jwt: string): Promise<{ exp: number }> {
+    try {
+      const { exp } = await this.jwtService.verifyAsync(jwt);
+      return exp;
+    } catch (error) {
+      throw new UnauthorizedException(`Unauthorized request`);
+    }
   }
 }
