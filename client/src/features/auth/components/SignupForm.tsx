@@ -1,6 +1,9 @@
 import { FormEvent, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { Grid, TextField, InputLabel, Button } from "@mui/material";
-import { FormHeader } from "./FormHeader";
+import { useAppDispatch, useAppSelector } from "../../../app/hooks";
+import { signup } from "../services/auth.service";
+import { reset } from "../authSlice";
 import {
   validateNameLength,
   validatePasswordLength,
@@ -9,10 +12,18 @@ import { useInput } from "../../../hooks/input";
 import { validateEmail } from "../../../shared/utils/validation/email-validation";
 import { validateFormData } from "../../../shared/utils/validation/validate-form-data";
 import { validateFormErrors } from "../../../shared/utils/validation/validate-form-errors";
-import { SignupUserType } from "../models/signup-user.type";
+import { SignupUserType } from "../types/signup-user.type";
+import { FormHeader } from "./FormHeader";
 
 export const SignupForm: React.FC = () => {
   const inputToFocusRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    inputToFocusRef.current?.focus();
+  }, []);
+
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const { success } = useAppSelector((state) => state.auth);
 
   // Form State
   const {
@@ -47,16 +58,20 @@ export const SignupForm: React.FC = () => {
     inputClearHandler: confirmPasswordClearHandler,
   } = useInput();
 
-  useEffect(() => {
-    inputToFocusRef.current?.focus();
-  }, []);
-
   const clearForm = () => {
     nameClearHandler();
     emailClearHandler();
     passwordClearHandler();
     confirmPasswordClearHandler();
   };
+
+  useEffect(() => {
+    if (success) {
+      dispatch(reset());
+      clearForm();
+      navigate("/");
+    }
+  }, [success, dispatch, navigate]);
 
   const handleFormSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -83,8 +98,7 @@ export const SignupForm: React.FC = () => {
     };
 
     console.log("Signing up with user info:", user);
-
-    clearForm();
+    dispatch(signup(user));
   };
 
   return (

@@ -16,7 +16,7 @@ export const DemoAccount = () => {
         Email: <span>test@test.com</span>
       </p>
       <p>
-        Password: <span>Pa$$123</span>
+        Password: <span>Pa$$1234</span>
       </p>
     </Box>
   );

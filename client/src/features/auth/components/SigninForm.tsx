@@ -6,7 +6,7 @@ import { validateEmail } from "../../../shared/utils/validation/email-validation
 import { validatePasswordLength } from "../../../shared/utils/validation/length-validation";
 import { validateFormData } from "../../../shared/utils/validation/validate-form-data";
 import { validateFormErrors } from "../../../shared/utils/validation/validate-form-errors";
-import { SigninUserType } from "../models/signin-user-type";
+import { SigninUserType } from "../types/signin-user-type";
 
 export const SigninForm = () => {
   const inputToFocusRef = useRef<HTMLInputElement | null>(null);
