@@ -9,17 +9,6 @@ import { TermsAndConditions } from "../features/auth/components/TermsAndConditio
 export const SignupPage = () => {
   const { loading } = useAppSelector((state) => state.auth);
 
-  if (loading) {
-    return (
-      <CircularProgress
-        sx={{
-          marginTop: "64px",
-          color: "primary",
-        }}
-      />
-    );
-  }
-
   return (
     <AuthLayout>
       {loading && (

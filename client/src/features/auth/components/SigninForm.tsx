@@ -7,9 +7,20 @@ import { validatePasswordLength } from "../../../shared/utils/validation/length-
 import { validateFormData } from "../../../shared/utils/validation/validate-form-data";
 import { validateFormErrors } from "../../../shared/utils/validation/validate-form-errors";
 import { SigninUserType } from "../types/signin-user-type";
+import { useAppDispatch, useAppSelector } from "../../../app/hooks";
+import { useNavigate } from "react-router-dom";
+import { reset } from "../authSlice";
+import { signin } from "../services/auth.service";
 
 export const SigninForm = () => {
   const inputToFocusRef = useRef<HTMLInputElement | null>(null);
+  useEffect(() => {
+    inputToFocusRef.current?.focus();
+  }, []);
+
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const { success, isAuthenticated } = useAppSelector((state) => state.auth);
 
   const {
     text: email,
@@ -27,14 +38,24 @@ export const SigninForm = () => {
     inputClearHandler: passwordClearHandler,
   } = useInput(validatePasswordLength);
 
-  useEffect(() => {
-    inputToFocusRef.current?.focus();
-  }, []);
-
   const clearForm = () => {
     emailClearHandler();
     passwordClearHandler();
   };
+
+  useEffect(() => {
+    if (success) {
+      dispatch(reset());
+      clearForm();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [success, dispatch]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/");
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleFormSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -57,9 +78,7 @@ export const SigninForm = () => {
       password,
     };
 
-    console.log("Signing in with user info:", user);
-
-    clearForm();
+    dispatch(signin(user));
   };
 
   return (
